@@ -11,7 +11,7 @@ import java.util.Arrays;
  * These emits will have the following form: "mqtt:TOPIC" and will have the received message split at " " as data
  * Modules can publish to the mqtt broker via 'publish()'
  */
-public class MiaMQTTHandler {
+public final class MiaMQTTHandler implements IMiaShutdownable{
 
     private final String broker = "tcp://192.168.2.128";
     private final String clientId = "MiaMqttClient";
@@ -63,6 +63,14 @@ public class MiaMQTTHandler {
         try {
             miaClient.publish(topic, new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
         }catch(MqttException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void shutdown(){
+        try {
+            miaClient.disconnect();
+        } catch (MqttException e) {
             e.printStackTrace();
         }
     }

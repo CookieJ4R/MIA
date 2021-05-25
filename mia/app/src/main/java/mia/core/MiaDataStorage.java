@@ -3,7 +3,7 @@ package mia.core;
 import org.dizitart.no2.*;
 import org.dizitart.no2.filters.Filters;
 
-public final class MiaDataStorage {
+public final class MiaDataStorage implements IMiaShutdownable{
 
     private Nitrite db = Nitrite.builder()
             .compressed()
@@ -60,6 +60,11 @@ public final class MiaDataStorage {
         int entries = collection.find().idSet().size();
         collection.close();
         return entries;
+    }
+
+
+    public void shutdown(){
+        db.close();
     }
 
 }
