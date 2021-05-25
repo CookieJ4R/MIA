@@ -13,20 +13,20 @@ import java.util.Arrays;
  */
 public class MiaMQTTHandler {
 
-    private final static MiaMQTTHandler instance = new MiaMQTTHandler().init();
-    public static MiaMQTTHandler getInstance(){return  instance;}
-
+    private final String broker = "tcp://192.168.2.128";
+    private final String clientId = "MiaMqttClient";
 
     private MqttClient miaClient;
 
+    public MiaMQTTHandler(){
+        init();
+    }
+
     /***
      * Initializes the MqttHandler
-     * @return the MQTTHandler Instance to allow initialization during singleton creation
      */
-    private MiaMQTTHandler init(){
+    private void init(){
         try {
-            String broker = "tcp://192.168.2.128";
-            String clientId = "MiaMqttClient";
             miaClient = new MqttClient(broker, clientId);
             System.out.println("Connecting to broker: "+ broker);
             miaClient.connect();
@@ -41,7 +41,7 @@ public class MiaMQTTHandler {
                 @Override
                 public void messageArrived(String topic, MqttMessage message){
                     System.out.println("MQTT Message received");
-                    MiaCommandBus.getInstance().emit("mqtt:" + topic, Arrays.stream(message.toString().trim().split(" ")).toList());
+                    Mia.getCommandBus().emit("mqtt:" + topic, Arrays.stream(message.toString().trim().split(" ")).toList());
                 }
 
                 @Override
@@ -52,7 +52,6 @@ public class MiaMQTTHandler {
         } catch(MqttException me) {
             me.printStackTrace();
         }
-        return this;
     }
 
     /***

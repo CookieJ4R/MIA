@@ -5,11 +5,6 @@ import org.dizitart.no2.filters.Filters;
 
 public final class MiaDataStorage {
 
-    private MiaDataStorage(){}
-
-    private static MiaDataStorage instance = new MiaDataStorage();
-    public static MiaDataStorage getInstance() {return instance;}
-
     private Nitrite db = Nitrite.builder()
             .compressed()
             .filePath("../miaDatabase.db")

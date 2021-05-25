@@ -11,11 +11,6 @@ import java.util.Map;
  */
 public final class MiaCommandBus {
 
-    private MiaCommandBus(){}
-
-    private static MiaCommandBus instance = new MiaCommandBus();
-    public static MiaCommandBus getInstance() { return instance; }
-
     private final Map<String, IMiaCommandBusNode> registeredNodes = new HashMap<>();
 
     /***
