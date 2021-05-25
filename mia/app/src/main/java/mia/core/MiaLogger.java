@@ -52,7 +52,13 @@ public class MiaLogger implements IMiaShutdownable{
 
     private void checkTime(){
         LocalDate now = LocalDate.now();
-        if(now.isAfter(lastLogCall) && (lastLogCall.getYear() != now.getYear())){
+        if(now.isAfter(lastLogCall) && (lastLogCall.getDayOfMonth() != now.getDayOfMonth())){
+            try {
+                logWriter.write("---Logging continues on the next day---".getBytes(StandardCharsets.UTF_8));
+                logWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             createLogFile();
         }
     }
