@@ -26,6 +26,8 @@ dependencies {
     implementation "org.slf4j:slf4j-simple:1.7.30"
 
     implementation 'org.dizitart:nitrite:3.4.2'
+
+    implementation group: 'org.eclipse.paho', name: 'org.eclipse.paho.client.mqttv3', version: '1.2.5'
 }
 
 application {
