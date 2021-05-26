@@ -3,6 +3,9 @@ package mia.core;
 import java.util.Arrays;
 import java.util.List;
 
+/***
+ * This class loads all the core modules as well as the extension modules
+ */
 public class Mia implements IMiaCommandBusNode{
 
     private static MiaCommandBus commandBus;

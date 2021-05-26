@@ -3,6 +3,9 @@ package mia.core;
 import org.dizitart.no2.*;
 import org.dizitart.no2.filters.Filters;
 
+/***
+ * This class provides access to a simple nitrite database.
+ */
 public final class MiaDataStorage implements IMiaShutdownable{
 
     private Nitrite db = Nitrite.builder()
@@ -11,8 +14,6 @@ public final class MiaDataStorage implements IMiaShutdownable{
             .openOrCreate();
 
     private final String tokenCollection = "tokens";
-
-    public MiaDataStorage(){}
 
     /***
      * Stores a Key-Value token in the database.
@@ -63,7 +64,6 @@ public final class MiaDataStorage implements IMiaShutdownable{
         collection.close();
         return entries;
     }
-
 
     public void shutdown(){
         db.close();
