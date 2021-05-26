@@ -12,6 +12,8 @@ public final class MiaDataStorage implements IMiaShutdownable{
 
     private final String tokenCollection = "tokens";
 
+    public MiaDataStorage(){}
+
     /***
      * Stores a Key-Value token in the database.
      * @param tokenName the name of the token
