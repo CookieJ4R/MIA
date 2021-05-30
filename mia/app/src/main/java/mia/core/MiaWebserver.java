@@ -9,11 +9,17 @@ public final class MiaWebserver implements IMiaShutdownable{
 
     private Javalin server;
 
-    private String hostIP = "192.168.2.101";
+    //Standard-Values can be overwritten by overloading the constructor
+    private String hostIP = "127.0.0.1";
     private int port = 80;
 
+    public MiaWebserver(){
+        init();
+    }
 
-    public void MiaWebserver(){
+    public MiaWebserver(String hostIP, String ip){
+        this.hostIP = hostIP;
+        this.port = Integer.parseInt(ip);
         init();
     }
 

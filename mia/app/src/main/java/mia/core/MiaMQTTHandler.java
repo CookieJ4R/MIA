@@ -13,10 +13,22 @@ import java.util.Arrays;
  */
 public final class MiaMQTTHandler implements IMiaShutdownable{
 
-    private final String broker = "tcp://192.168.2.128";
-    private final String clientId = "MiaMqttClient";
+    //Standard-Values can be overwritten by overloading the constructor
+    private String broker = "tcp://127.0.0.1";
+    private String clientId = "MiaMqttClient";
 
     private MqttClient miaClient;
+
+    public MiaMQTTHandler(String brokerIP){
+        this.broker = "tcp://"+brokerIP;
+        init();
+    }
+
+    public MiaMQTTHandler(String brokerIP, String clientId){
+        this.broker = "tcp://"+brokerIP;
+        this.clientId = clientId;
+        init();
+    }
 
     public MiaMQTTHandler(){
         init();
@@ -35,22 +47,23 @@ public final class MiaMQTTHandler implements IMiaShutdownable{
             miaClient.setCallback(new MqttCallback() {
                 @Override
                 public void connectionLost(Throwable cause) {
-                    System.out.println("Lost connection to broker");
+                    Mia.getLogger().logError("Lost connection to mqtt broker", false);
                 }
 
                 @Override
                 public void messageArrived(String topic, MqttMessage message){
-                    System.out.println("MQTT Message received");
+                    Mia.getLogger().logInfo("Received message '" + message.toString().trim() + "' on topic '" + topic + "'");
                     Mia.getCommandBus().emit("mqtt:" + topic, Arrays.stream(message.toString().trim().split(" ")).toList());
                 }
 
                 @Override
                 public void deliveryComplete(IMqttDeliveryToken token) {
-                    System.out.println("Successfully published message");
+                    Mia.getLogger().logInfo("Successfully published message");
                 }
             });
         } catch(MqttException me) {
             me.printStackTrace();
+            Mia.getLogger().logError("Error while connecting to mqtt-broker", true);
         }
     }
 

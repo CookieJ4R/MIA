@@ -14,15 +14,19 @@ public class Mia implements IMiaCommandBusNode{
     private static MiaLogger logger;
     private static MiaWebserver webserver;
     private static MiaShutdownManager shutdownManager;
+    private static MiaConfig config;
 
     public Mia() {
+
+        //Initialize the Config first so other parts can use config values
+        config = new MiaConfig();
 
         logger = new MiaLogger();
         shutdownManager = new MiaShutdownManager();
         commandBus = new MiaCommandBus();
         dataStorage = new MiaDataStorage();
-        MQTTHandler = new MiaMQTTHandler();
-        //webserver = new MiaWebserver();
+        MQTTHandler = new MiaMQTTHandler(getConfig().getProperty("mqttBrokerIP"));
+        //webserver = new MiaWebserver(getConfig().getProperty("webserverIP"), getConfig().getProperty("webserverPort"));
 
         addShutdownHooks();
 
@@ -30,9 +34,12 @@ public class Mia implements IMiaCommandBusNode{
 
         logger.logInfo("Test");
         logger.logWarning("Test");
-        logger.logError("Test");
+        logger.logError("Test", false);
     }
 
+    /***
+     * Register all shutdown hooks
+     */
     private void addShutdownHooks(){
         //Shut down logger last so the shutdown process of other modules can be logged
         getShutdownManager().addShutdownableNode(getLogger(),10);
@@ -84,9 +91,17 @@ public class Mia implements IMiaCommandBusNode{
     public static MiaWebserver getWebserver(){
         return webserver;
     }
+    /***
+     * Get the Config instance
+     * @return the Config instance
+     */
+    public static MiaConfig getConfig(){
+        return config;
+    }
 
     @Override
     public void receive(String cmd, List<String> data) {
+        getLogger().logInfo("CORE: '" + data.get(0) + "' command received");
         if(data.get(0).equals("shutdown"))
             getShutdownManager().shutdownSystem();
         if(data.get(0).equals("testLog"))

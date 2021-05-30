@@ -27,6 +27,7 @@ public class MiaShutdownManager {
      * Shuts the program down by calling all registered shutdownable nodes shutdown method
      */
     public void shutdownSystem(){
+        Mia.getLogger().logInfo("Initiating shutdown:");
         new Thread(() -> {
             try {
                 Thread.sleep(200);

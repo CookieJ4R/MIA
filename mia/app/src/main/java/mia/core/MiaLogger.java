@@ -15,8 +15,6 @@ public class MiaLogger implements IMiaShutdownable{
 
     private LocalDate lastLogCall;
 
-    private boolean defaultShouldPrintOut = true;
-
     private String ANSI_RESET = "\u001B[0m";
     private String ANSI_RED = "\u001B[31m";
     private String ANSI_GREEN = "\u001B[32m";
@@ -74,59 +72,34 @@ public class MiaLogger implements IMiaShutdownable{
     }
 
     /***
-     * Logs a warning message to the logfile and to the console if 'defaultShouldPrintOut' is true
+     * Logs a warning message to the logfile and to the console.
      * @param msg the warning message to log
      */
     public void logWarning(String msg){
-        logWarning(msg, defaultShouldPrintOut);
+        String logMsg = getTimestamp() + "WARNING: \t" + msg + "\n";
+        System.out.print(ANSI_YELLOW + logMsg + ANSI_RESET);
+        log(logMsg);
     }
 
     /***
-     * Logs a warning message to the logfile and to the console if param 'printToConsole' is true
-     * @param msg the warning message to log
-     * @param printToConsole whether the message should be printed out in the console
-     */
-    public void logWarning(String msg, boolean printToConsole){
-        String logMsg = getTimestamp() + "WARNING: \t" + msg + "\n";
-        if(printToConsole)
-            System.out.print(ANSI_YELLOW + logMsg + ANSI_RESET);
-        log(logMsg);
-    }
-    /***
-     * Logs a info message to the logfile and to the console if 'defaultShouldPrintOut' is true
+     * Logs a info message to the logfile and to the console.
      * @param msg the info message to log
      */
     public void logInfo(String msg){
-        logInfo(msg, defaultShouldPrintOut);
-    }
-    /***
-     * Logs a info message to the logfile and to the console if param 'printToConsole' is true
-     * @param msg the info message to log
-     * @param printToConsole whether the message should be printed out in the console
-     */
-    public void logInfo(String msg, boolean printToConsole){
         String logMsg = getTimestamp() + "INFO: \t" + msg + "\n";
-        if(printToConsole)
-            System.out.print(ANSI_GREEN + logMsg + ANSI_RESET);
+        System.out.print(ANSI_GREEN + logMsg + ANSI_RESET);
         log(logMsg);
     }
     /***
-     * Logs a error message to the logfile and to the console if 'defaultShouldPrintOut' is true
+     * Logs a error message to the logfile and to the console. If 'shouldShutdown' is true, the system will shutdown
      * @param msg the error message to log
+     * @param shouldShutdown if the error should initiate a shutdown of the system
      */
-    public void logError(String msg){
-        logError(msg, defaultShouldPrintOut);
-    }
-    /***
-     * Logs a error message to the logfile and to the console if param 'printToConsole' is true
-     * @param msg the error message to log
-     * @param printToConsole whether the message should be printed out in the console
-     */
-    public void logError(String msg, boolean printToConsole){
+    public void logError(String msg, boolean shouldShutdown){
         String logMsg = getTimestamp() + "ERROR: \t" + msg + "\n";
-        if(printToConsole)
-            System.out.print(ANSI_RED + logMsg + ANSI_RESET);
+        System.out.print(ANSI_RED + logMsg + ANSI_RESET);
         log(logMsg);
+        if(shouldShutdown) Mia.getShutdownManager().shutdownSystem();
     }
 
     /***
