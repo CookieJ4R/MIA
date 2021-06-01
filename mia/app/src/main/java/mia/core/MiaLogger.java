@@ -20,6 +20,8 @@ public class MiaLogger implements IMiaShutdownable{
     private String ANSI_GREEN = "\u001B[32m";
     private String ANSI_YELLOW = "\u001B[33m";
 
+    private String logPath = System.getProperty("user.dir") + "/logs";
+
     public MiaLogger(){
             createLogFile();
             lastLogCall = LocalDate.now();
@@ -31,11 +33,11 @@ public class MiaLogger implements IMiaShutdownable{
      */
     private void createLogFile(){
         try {
-            new File("../logs").mkdir();
+            new File(logPath).mkdir();
             String logFileName = "mia"+getDatestamp();
-            File logFile = new File("../logs/" + logFileName + ".log");
+            File logFile = new File(logPath + "/" + logFileName + ".log");
             logFile.createNewFile();
-            logWriter = new FileOutputStream("../logs/" + logFileName + ".log", true);
+            logWriter = new FileOutputStream(logPath + "/" + logFileName + ".log", true);
         } catch (IOException e) {
             e.printStackTrace();
         }
