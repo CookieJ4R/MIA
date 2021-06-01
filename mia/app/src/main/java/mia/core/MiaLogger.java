@@ -20,12 +20,11 @@ public class MiaLogger implements IMiaShutdownable{
     private String ANSI_GREEN = "\u001B[32m";
     private String ANSI_YELLOW = "\u001B[33m";
 
-    private String logPath = System.getProperty("user.dir") + "/logs";
+    private String logPath =  "../logs";
 
     public MiaLogger(){
             createLogFile();
             lastLogCall = LocalDate.now();
-            logInfo("MIA-Logger initialized...");
     }
 
     /***
@@ -102,6 +101,13 @@ public class MiaLogger implements IMiaShutdownable{
         System.out.print(ANSI_RED + logMsg + ANSI_RESET);
         log(logMsg);
         if(shouldShutdown) Mia.getShutdownManager().shutdownSystem();
+    }
+    /***
+     * Logs a error message to the logfile and to the console without shutting down the system.
+     * @param msg the error message to log
+     */
+    public void logError(String msg){
+        logError(msg, false);
     }
 
     /***

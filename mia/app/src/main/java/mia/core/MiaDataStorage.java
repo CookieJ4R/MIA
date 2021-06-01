@@ -10,7 +10,7 @@ public final class MiaDataStorage implements IMiaShutdownable{
 
     private Nitrite db = Nitrite.builder()
             .compressed()
-            .filePath(System.getProperty("user.dir") + "/miaDatabase.db")
+            .filePath("../miaDatabase.db")
             .openOrCreate();
 
     private final String tokenCollection = "tokens";

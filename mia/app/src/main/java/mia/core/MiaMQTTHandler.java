@@ -3,7 +3,9 @@ package mia.core;
 import org.eclipse.paho.client.mqttv3.*;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /***
  * This class handles everything MQTT related.
@@ -40,9 +42,9 @@ public final class MiaMQTTHandler implements IMiaShutdownable{
     private void init(){
         try {
             miaClient = new MqttClient(broker, clientId);
-            System.out.println("Connecting to broker: "+ broker);
+            Mia.getLogger().logInfo("Connecting to broker: "+ broker);
             miaClient.connect();
-            System.out.println("Connected");
+            Mia.getLogger().logInfo("Connected to broker!");
             miaClient.subscribe("#");
             miaClient.setCallback(new MqttCallback() {
                 @Override
@@ -53,7 +55,10 @@ public final class MiaMQTTHandler implements IMiaShutdownable{
                 @Override
                 public void messageArrived(String topic, MqttMessage message){
                     Mia.getLogger().logInfo("Received message '" + message.toString().trim() + "' on topic '" + topic + "'");
-                    Mia.getCommandBus().emit("mqtt:" + topic, Arrays.stream(message.toString().trim().split(" ")).toList());
+                    String[] messageParts = message.toString().trim().split(" ");
+                    List<String> additionalData = new ArrayList<>();
+                    additionalData.addAll(Arrays.asList(messageParts).subList(1, messageParts.length));
+                    Mia.getCommandBus().emit("mqtt:" + topic, messageParts[0], additionalData);
                 }
 
                 @Override

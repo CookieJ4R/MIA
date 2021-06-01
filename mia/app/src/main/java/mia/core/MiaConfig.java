@@ -25,7 +25,7 @@ public class MiaConfig {
     private void loadConfig(){
 
         try {
-            File logFile = new File(System.getProperty("user.dir") + "/mia.cfg");
+            File logFile = new File("../mia.cfg");
             logFile.createNewFile();
             List<String> lines = Files.readAllLines(logFile.toPath(), StandardCharsets.UTF_8);
 
