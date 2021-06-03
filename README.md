@@ -26,6 +26,8 @@ Planned features:
 * Alarms / Timer
 * Philips hue integration
 * Spotify integration
+* Weather
+* Camera & Security Module
 * Everything that sounds fun
 
 Ideas:
