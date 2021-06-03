@@ -12,8 +12,8 @@ The goal of this project is gaining experience and still having something useful
 Also, Im a huge sucker for acronyms so most of my modules will probably have an acronym as their name :)
 
 Implemented features:
-* Webserver
-* Mqtt client
+* Webserver (Javalin/Jetty)
+* Mqtt client (Paho)
 * Logging utility
 * Config loader
 * Data Storage (nitrite-db)
@@ -27,6 +27,8 @@ Planned features:
 * Philips hue integration
 * Spotify integration
 * Weather
+* TTS
+* 433MHz radio frequency via python script
 * Camera & Security Module
 * Everything that sounds fun
 
