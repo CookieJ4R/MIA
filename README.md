@@ -7,7 +7,7 @@ MIA is my take on a simple, small, personalized home automation system.
 
 Well - I dont want to!
 
-The goal of this project is gaining experience and still having something useful at the end of the day. Is it gonna be as big and flexible as one of the leading home automation systems? Probably not... Its gonna be a huge mess..But it will be my mess <3
+The goal of this project is gaining experience and still having something useful at the end of the day. Is it gonna be as big and flexible as one of the leading home automation systems? Ahhh probably not... Will it be fun?...Well i sure hope it will :)
 
 Also, Im a huge sucker for acronyms so most of my modules will probably have an acronym as their name :)
 
