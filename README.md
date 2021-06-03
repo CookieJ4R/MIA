@@ -3,7 +3,7 @@ MIA - Modular Integrated Assitant
 
 MIA is my take on a simple, small, personalized home automation system.
 
-**But why dont you just use OpenHAB or smothing similar!?**
+**But why dont you just use OpenHAB or something similar!?**
 
 Well - I dont want to!
 
