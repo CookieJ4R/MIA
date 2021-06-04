@@ -30,6 +30,11 @@ public final class MiaWebserver implements IMiaShutdownable{
         server = Javalin.create().start(hostIP, port);
         server.get("/test", (ctx) ->
                 ctx.result("Test running"));
+
+        server.get("/run", (ctx) -> {
+            String scriptName = ctx.queryParam("script");
+            Mia.getCommandBus().emit("isaac", "run", scriptName);
+        });
     }
 
     @Override

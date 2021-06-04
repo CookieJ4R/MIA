@@ -30,7 +30,7 @@ public class Mia implements IMiaCommandBusNode{
         commandBus = new MiaCommandBus();
         dataStorage = new MiaDataStorage();
         MQTTHandler = new MiaMQTTHandler(getConfig().getProperty("mqttBrokerIP"));
-        //webserver = new MiaWebserver(getConfig().getProperty("webserverIP"), getConfig().getProperty("webserverPort"));
+        webserver = new MiaWebserver(getConfig().getProperty("webserverIP"), getConfig().getProperty("webserverPort"));
 
         registerExtensionModules();
         initExtensionModules();
@@ -40,7 +40,6 @@ public class Mia implements IMiaCommandBusNode{
 
         addShutdownHooks();
 
-        getCommandBus().emit("isaac", "runScriptByName", "testscript");
         getCommandBus().emit("core", "testLog");
 
 
@@ -56,7 +55,7 @@ public class Mia implements IMiaCommandBusNode{
 
         getShutdownManager().addShutdownableNode(getMQTTHandler(), 0);
         getShutdownManager().addShutdownableNode(getDataStorage(),0);
-        //getShutdownManager().addShutdownableNode(getWebserver(),0);
+        getShutdownManager().addShutdownableNode(getWebserver(),0);
         modules.forEach(IMiaExtensionModule::addShutdownHooks);
     }
 

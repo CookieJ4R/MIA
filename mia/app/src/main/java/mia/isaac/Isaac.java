@@ -31,7 +31,7 @@ public class Isaac implements IMiaExtensionModule, IMiaCommandBusNode {
 
     @Override
     public void receive(String cmd, List<String> data) {
-        if ("runScriptByName".equals(cmd)) {
+        if ("run".equals(cmd)) {
             isaacScriptExecutor.runScript(isaacScriptLoader.getScript(data.get(0)));
         }
     }

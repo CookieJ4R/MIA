@@ -1,5 +1,5 @@
 <ISAAC-script-type=SCRIPT, call-id: testscript>
-delay 50
+delay 2
 is summer
 action core shutdown
 si
