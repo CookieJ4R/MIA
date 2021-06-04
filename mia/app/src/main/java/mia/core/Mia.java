@@ -12,6 +12,7 @@ public class Mia implements IMiaCommandBusNode{
     private static MiaCommandBus commandBus;
     private static MiaDataStorage dataStorage;
     private static MiaMQTTHandler MQTTHandler;
+    private static MiaScheduledEventHandler miaScheduledEventHandler;
     private static MiaLogger logger;
     private static MiaWebserver webserver;
     private static MiaShutdownManager shutdownManager;
@@ -29,6 +30,7 @@ public class Mia implements IMiaCommandBusNode{
         shutdownManager = new MiaShutdownManager();
         commandBus = new MiaCommandBus();
         dataStorage = new MiaDataStorage();
+        miaScheduledEventHandler = new MiaScheduledEventHandler();
         MQTTHandler = new MiaMQTTHandler(getConfig().getProperty("mqttBrokerIP"));
         webserver = new MiaWebserver(getConfig().getProperty("webserverIP"), getConfig().getProperty("webserverPort"));
 
@@ -53,6 +55,7 @@ public class Mia implements IMiaCommandBusNode{
         //Shut down logger last so the shutdown process of other modules can be logged
         getShutdownManager().addShutdownableNode(getLogger(),10);
 
+        getShutdownManager().addShutdownableNode(getScheduledEventHandler(), 0);
         getShutdownManager().addShutdownableNode(getMQTTHandler(), 0);
         getShutdownManager().addShutdownableNode(getDataStorage(),0);
         getShutdownManager().addShutdownableNode(getWebserver(),0);
@@ -132,19 +135,24 @@ public class Mia implements IMiaCommandBusNode{
         return config;
     }
 
+    /***
+     * Get the ScheduledEventHandler instance
+     * @return the ScheduledEventHandler instance
+     */
+    public static MiaScheduledEventHandler getScheduledEventHandler() {
+        return miaScheduledEventHandler;
+    }
 
     @Override
     public void receive(String cmd, List<String> data) {
         getLogger().logInfo("CORE: '" + cmd + "' command received");
-        switch (cmd){
-            case "shutdown":
-                getShutdownManager().shutdownSystem();
-                break;
-            case "testLog":
+        switch (cmd) {
+            case "shutdown" -> getShutdownManager().shutdownSystem();
+            case "testLog" -> {
                 getLogger().logInfo("Testing log");
                 getLogger().logWarning("Testing log");
                 getLogger().logError("Testing log", false);
-                break;
+            }
         }
     }
 }

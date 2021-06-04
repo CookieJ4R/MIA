@@ -32,7 +32,10 @@ public class Isaac implements IMiaExtensionModule, IMiaCommandBusNode {
     @Override
     public void receive(String cmd, List<String> data) {
         if ("run".equals(cmd)) {
-            isaacScriptExecutor.runScript(isaacScriptLoader.getScript(data.get(0)));
+            if(isaacScriptLoader.isScriptLoaded(data.get(0)))
+                isaacScriptExecutor.runScript(isaacScriptLoader.getScript(data.get(0)));
+            else
+                Mia.getLogger().logWarning("Script " + data.get(0) + "is not loaded but a run command for it was issued!");
         }
     }
 }

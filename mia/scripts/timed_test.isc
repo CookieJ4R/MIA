@@ -1,0 +1,3 @@
+<ISAAC-script-type=TIMED, call-id: timetest, exec-time:20:35>
+delay 2
+action core testLog

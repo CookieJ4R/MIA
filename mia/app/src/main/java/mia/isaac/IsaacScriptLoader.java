@@ -1,6 +1,7 @@
 package mia.isaac;
 
 import mia.core.Mia;
+import mia.core.MiaTimedEvent;
 
 import java.io.*;
 import java.time.LocalTime;
@@ -13,30 +14,32 @@ import java.util.List;
  */
 public class IsaacScriptLoader {
 
-    private HashMap<String, IsaacScript> loadedScripts = new HashMap<>();
+    private final HashMap<String, IsaacScript> loadedScripts = new HashMap<>();
 
-    private String scriptPath = "../scripts";
+    private final String scriptPath = "../scripts";
 
-    private String META_SCRIPT_TYPE= "ISAAC-script-type=";
-    private String META_CALL_ID = "call-id:";
-    private String META_EXEC_TIME = "exec-time:";
+    private final String META_SCRIPT_TYPE= "ISAAC-script-type=";
+    private final String META_CALL_ID = "call-id:";
+    private final String META_EXEC_TIME = "exec-time:";
+
+    private String META_TIMED_IDENTIFIER = "TIMED";
 
     /***
      * Loads all scripts and stores them in loadedScripts with their callIDs as keys
+     * If the script is a timed script it will be automatically scheduled in the ScheduledEventHandler
      */
     public void loadScripts(){
         Mia.getLogger().logInfo("Loading scripts from: " + scriptPath);
         File scriptFolder = new File(scriptPath);
-
+        scriptFolder.mkdir();
         File[] scripts = scriptFolder.listFiles();
 
         for (File file : scripts) {
             try {
                 IsaacScript script = createScriptFromFile(file);
-                /*if (script instance of IsaacTimedScript) {
-                    //Enqueue in TimedExecutionDelegator (TED)
-                    timedExecutor.addTimedScript(script, script.executionTime);
-                }*/
+                if (script instanceof IsaacTimedScript) {
+                    Mia.getScheduledEventHandler().scheduleTimedEvent(MiaTimedEvent.createScriptEvent(script.getScriptCallID()), ((IsaacTimedScript) script).getExecutionTime());
+                }
                 loadedScripts.put(script.getScriptCallID(), script);
             } catch (IsaacScriptSyntaxException e) {
                 Mia.getLogger().logError("Script syntax error detected", false);
@@ -64,7 +67,7 @@ public class IsaacScriptLoader {
             e.printStackTrace();
         }
         IsaacScript script;
-        if(getMetaDataPart(metaData, META_SCRIPT_TYPE).equals("TIMED"))
+        if(getMetaDataPart(metaData, META_SCRIPT_TYPE).equals(META_TIMED_IDENTIFIER))
             script = new IsaacTimedScript(LocalTime.parse(getMetaDataPart(metaData, META_EXEC_TIME)));
         else
             script = new IsaacScript();
@@ -98,4 +101,6 @@ public class IsaacScriptLoader {
     public IsaacScript getScript(String callID) {
         return loadedScripts.get(callID);
     }
+
+    public boolean isScriptLoaded(String callID){return loadedScripts.containsKey(callID);}
 }

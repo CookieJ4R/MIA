@@ -56,33 +56,30 @@ public class IsaacScriptExecutor implements IMiaShutdownable {
      * @throws IsaacScriptSyntaxException
      */
     private void executeInstruction(String instruction) throws IsaacScriptSyntaxException {
-        String instructionParts[] = instruction.split(" ");
+        String[] instructionParts = instruction.split(" ");
         for(int i = 0; i < instructionParts.length; i++){
             instructionParts[i] = instructionParts[i].replace("##", " ");
         }
-        switch(instructionParts[0]){
-            case "action":
-                if(active_condition && !condition_stack.peek())
+        switch (instructionParts[0]) {
+            case "action" -> {
+                if (active_condition && !condition_stack.peek())
                     break;
                 handleAction(instructionParts);
-                break;
-            case "is":
-                if(active_condition && !condition_stack.peek())
+            }
+            case "is" -> {
+                if (active_condition && !condition_stack.peek())
                     break;
                 active_condition = true;
                 condition_depth_tracker++;
                 handleCondition(instructionParts);
-                break;
-            case "si":
+            }
+            case "si" -> {
                 condition_depth_tracker--;
                 condition_stack.pop();
-                if(condition_depth_tracker == 0) active_condition = false;
-                break;
-            case "delay":
-                handleDelay(instructionParts[1]);
-                break;
-            default:
-                throw new IsaacScriptSyntaxException();
+                if (condition_depth_tracker == 0) active_condition = false;
+            }
+            case "delay" -> handleDelay(instructionParts[1]);
+            default -> throw new IsaacScriptSyntaxException();
         }
     }
 
@@ -118,11 +115,9 @@ public class IsaacScriptExecutor implements IMiaShutdownable {
      *                         Every other element of instructionsParts[] will be considered additional data
      */
     private void handleAction(String[] instructionParts) {
-        Mia.getLogger().logInfo("Handling Action...");
-        List<String> data = new ArrayList<>();
 
-        data.addAll(Arrays.asList(instructionParts).subList(2, instructionParts.length));
-        Mia.getLogger().logInfo("Script emitting cmd " + instructionParts[1]);
+        List<String> data = new ArrayList<>(Arrays.asList(instructionParts).subList(2, instructionParts.length));
+        Mia.getLogger().logInfo("Script emitting on channel " + instructionParts[1] + " command: " + instructionParts[2]);
         Mia.getCommandBus().emit(instructionParts[1], instructionParts[2], data);
     }
 
