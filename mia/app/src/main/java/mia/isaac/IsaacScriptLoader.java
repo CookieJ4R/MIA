@@ -2,6 +2,7 @@ package mia.isaac;
 
 import mia.core.Mia;
 import mia.core.MiaTimedEvent;
+import mia.core.TimedEventTriggerRate;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -40,7 +41,7 @@ public class IsaacScriptLoader {
             try {
                 IsaacScript script = createScriptFromFile(file);
                 if (script instanceof IsaacTimedScript) {
-                    Mia.getScheduledEventHandler().scheduleTimedEvent(MiaTimedEvent.createScriptEvent(script.getScriptCallID()), ((IsaacTimedScript) script).getExecutionTime());
+                    Mia.getScheduledEventHandler().scheduleTimedEvent(MiaTimedEvent.createScriptEvent(TimedEventTriggerRate.ONCE, script.getScriptCallID()), ((IsaacTimedScript) script).getExecutionTime());
                 }
                 loadedScripts.put(script.getScriptCallID(), script);
             } catch (IsaacScriptSyntaxException e) {

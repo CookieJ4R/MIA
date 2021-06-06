@@ -24,6 +24,21 @@ public class MiaScheduledEventHandler implements IMiaShutdownable{
      */
     private void init(){
         eventExecutionTimer = new Timer();
+
+        Mia.getDataStorage().getAllEvents().forEach((event) -> {
+            if(event.getExecDateTime().isAfter(LocalDateTime.now())){
+                scheduleTimedEvent(event, event.getExecDateTime());
+            }
+            else{
+                LocalDateTime nextExecTime;
+                do{
+                    nextExecTime = getNextExecDateTime(event.getExecDateTime(), event.getTriggerRate());
+                }while(nextExecTime != null && nextExecTime.isBefore(LocalDateTime.now()));
+                if(nextExecTime != null)
+                    scheduleTimedEvent(event, nextExecTime);
+            }
+        });
+
         eventExecutionTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -31,6 +46,7 @@ public class MiaScheduledEventHandler implements IMiaShutdownable{
                 if(scheduledEvents.containsKey(dateTimeToLookup)){
                     List<MiaTimedEvent> events = scheduledEvents.get(dateTimeToLookup);
                     events.forEach((event) -> handleEvent(event));
+                    scheduledEvents.remove(dateTimeToLookup);
                 }
             }
         }, (60-LocalTime.now().getSecond()) * 1000, 60000);
@@ -44,6 +60,28 @@ public class MiaScheduledEventHandler implements IMiaShutdownable{
         switch (event.getType()) {
             case SCRIPT -> Mia.getCommandBus().emit("isaac", "run", event.getData());
         }
+
+        LocalDateTime nextExecTime;
+
+        nextExecTime = getNextExecDateTime(event.getExecDateTime(), event.getTriggerRate());
+
+        if(nextExecTime == null) return;
+
+        Mia.getDataStorage().storeEvent(event);
+        scheduleTimedEvent(event, nextExecTime);
+    }
+
+    private LocalDateTime getNextExecDateTime(LocalDateTime oldExecTime, TimedEventTriggerRate triggerRate){
+        LocalDateTime nextExecTime = null;
+        switch (triggerRate){
+            case MINUTELY -> nextExecTime = oldExecTime.plusMinutes(1);
+            case HOURLY -> nextExecTime = oldExecTime.plusHours(1);
+            case DAILY -> nextExecTime = oldExecTime.plusDays(1);
+            case WEEKLY -> nextExecTime = oldExecTime.plusWeeks(1);
+            case MONTHLY -> nextExecTime = oldExecTime.plusMonths(1);
+            case YEARLY -> nextExecTime = oldExecTime.plusYears(1);
+        }
+        return  nextExecTime;
     }
 
     /***
@@ -53,6 +91,7 @@ public class MiaScheduledEventHandler implements IMiaShutdownable{
      */
     public void scheduleTimedEvent(MiaTimedEvent event, LocalDateTime execTime){
         LocalDateTime shortenedTime = execTime.withNano(0);
+        event.setExecDateTime(shortenedTime);
         if(scheduledEvents.containsKey(shortenedTime)){
             scheduledEvents.get(shortenedTime).add(event);
         }

@@ -2,6 +2,7 @@ package mia.core;
 
 import mia.isaac.Isaac;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 /***
@@ -43,7 +44,6 @@ public class Mia implements IMiaCommandBusNode{
         addShutdownHooks();
 
         getCommandBus().emit("core", "testLog");
-
 
     }
 
