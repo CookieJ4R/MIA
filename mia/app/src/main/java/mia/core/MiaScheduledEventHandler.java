@@ -1,5 +1,6 @@
 package mia.core;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -10,7 +11,7 @@ import java.util.*;
  */
 public class MiaScheduledEventHandler implements IMiaShutdownable{
 
-    private final Map<LocalTime, List<MiaTimedEvent>> scheduledEvents = new HashMap<>();
+    private final Map<LocalDateTime, List<MiaTimedEvent>> scheduledEvents = new HashMap<>();
 
     public Timer eventExecutionTimer;
 
@@ -26,9 +27,9 @@ public class MiaScheduledEventHandler implements IMiaShutdownable{
         eventExecutionTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                LocalTime timeToLookup = LocalTime.now().withSecond(0).withNano(0);
-                if(scheduledEvents.containsKey(timeToLookup)){
-                    List<MiaTimedEvent> events = scheduledEvents.get(timeToLookup);
+                LocalDateTime dateTimeToLookup = LocalDateTime.now().withSecond(0).withNano(0);
+                if(scheduledEvents.containsKey(dateTimeToLookup)){
+                    List<MiaTimedEvent> events = scheduledEvents.get(dateTimeToLookup);
                     events.forEach((event) -> handleEvent(event));
                 }
             }
@@ -50,8 +51,8 @@ public class MiaScheduledEventHandler implements IMiaShutdownable{
      * @param event the event to insert
      * @param execTime the time the event will execute
      */
-    public void scheduleTimedEvent(MiaTimedEvent event, LocalTime execTime){
-        LocalTime shortenedTime = execTime.withNano(0);
+    public void scheduleTimedEvent(MiaTimedEvent event, LocalDateTime execTime){
+        LocalDateTime shortenedTime = execTime.withNano(0);
         if(scheduledEvents.containsKey(shortenedTime)){
             scheduledEvents.get(shortenedTime).add(event);
         }

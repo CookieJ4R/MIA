@@ -1,6 +1,6 @@
 package mia.isaac;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 /***
  * A slighly more advanced version of IsaacScript.
@@ -8,23 +8,23 @@ import java.time.LocalTime;
  */
 public class IsaacTimedScript extends IsaacScript{
 
-    private LocalTime executionTime;
+    private LocalDateTime executionDateTime;
 
-    public IsaacTimedScript(LocalTime executionTime){
-        this.executionTime = executionTime;
+    public IsaacTimedScript(LocalDateTime executionDateTime){
+        this.executionDateTime = executionDateTime;
     }
 
     /***
      * Get the execution time of the script
      * @return the execution time of the script
      */
-    public LocalTime getExecutionTime() {
-        return executionTime;
+    public LocalDateTime getExecutionTime() {
+        return executionDateTime;
     }
     /***
      * Set the execution time of the script
      */
-    public void setExecutionTime(LocalTime executionTime) {
-        this.executionTime = executionTime;
+    public void setExecutionTime(LocalDateTime executionDateTime) {
+        this.executionDateTime = executionDateTime;
     }
 }

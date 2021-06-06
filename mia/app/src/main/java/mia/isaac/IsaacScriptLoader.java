@@ -4,6 +4,8 @@ import mia.core.Mia;
 import mia.core.MiaTimedEvent;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,8 +69,10 @@ public class IsaacScriptLoader {
             e.printStackTrace();
         }
         IsaacScript script;
-        if(getMetaDataPart(metaData, META_SCRIPT_TYPE).equals(META_TIMED_IDENTIFIER))
-            script = new IsaacTimedScript(LocalTime.parse(getMetaDataPart(metaData, META_EXEC_TIME)));
+        if(getMetaDataPart(metaData, META_SCRIPT_TYPE).equals(META_TIMED_IDENTIFIER)) {
+            LocalTime time = LocalTime.parse(getMetaDataPart(metaData, META_EXEC_TIME));
+            script = new IsaacTimedScript(LocalDateTime.of(LocalDate.now(), time));
+        }
         else
             script = new IsaacScript();
 
