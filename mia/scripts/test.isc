@@ -1,4 +1,4 @@
-<ISAAC-script-type=SCRIPT, call-id: testscript>
+<call-id: testscript>
 delay 2
 is summer
 action core shutdown

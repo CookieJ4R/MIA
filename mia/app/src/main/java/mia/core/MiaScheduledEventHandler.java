@@ -1,5 +1,7 @@
 package mia.core;
 
+import mia.isaac.Isaac;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -25,17 +27,22 @@ public class MiaScheduledEventHandler implements IMiaShutdownable{
     private void init(){
         eventExecutionTimer = new Timer();
 
+        //Schedule all events stored in the database
         Mia.getDataStorage().getAllEvents().forEach((event) -> {
             if(event.getExecDateTime().isAfter(LocalDateTime.now())){
                 scheduleTimedEvent(event, event.getExecDateTime());
+                Mia.getLogger().logInfo("Scheduled event from database for: " + event.getExecDateTime());
             }
             else{
-                LocalDateTime nextExecTime;
+                Mia.getLogger().logWarning("Scheduled execution time in database has already passed...calculating new one...");
+                LocalDateTime nextExecTime = event.getExecDateTime();
                 do{
-                    nextExecTime = getNextExecDateTime(event.getExecDateTime(), event.getTriggerRate());
+                    nextExecTime = getNextExecDateTime(nextExecTime, event.getTriggerRate());
                 }while(nextExecTime != null && nextExecTime.isBefore(LocalDateTime.now()));
-                if(nextExecTime != null)
+                if(nextExecTime != null) {
+                    Mia.getLogger().logInfo("Calculation finished...Now scheduled event from database for: " + nextExecTime);
                     scheduleTimedEvent(event, nextExecTime);
+                }
             }
         });
 
@@ -57,20 +64,32 @@ public class MiaScheduledEventHandler implements IMiaShutdownable{
      * @param event the event to handle
      */
     private void handleEvent(MiaTimedEvent event){
-        switch (event.getType()) {
-            case SCRIPT -> Mia.getCommandBus().emit("isaac", "run", event.getData());
+
+        if(event instanceof MiaTimedScriptEvent){
+            MiaTimedScriptEvent scriptEvent = (MiaTimedScriptEvent)event;
+            Mia.getCommandBus().emit("isaac", "run", scriptEvent.getScriptCallID());
         }
 
+        //Schedule next execution
         LocalDateTime nextExecTime;
-
         nextExecTime = getNextExecDateTime(event.getExecDateTime(), event.getTriggerRate());
-
         if(nextExecTime == null) return;
-
-        Mia.getDataStorage().storeEvent(event);
+        event.setExecDateTime(nextExecTime);
+        if(event.getEventDatabaseID() != null && Mia.getDataStorage().containsEvent(event))
+            Mia.getDataStorage().updateEvent(event);
+        else
+            Mia.getDataStorage().storeEvent(event);
         scheduleTimedEvent(event, nextExecTime);
+        Mia.getLogger().logInfo("Scheduled next event trigger for: " + nextExecTime);
     }
 
+    /***
+     * Calculate the next LocalDateTime the event will trigger based on the passed triggerRate
+     * @param oldExecTime the last time the script got executed (probably close to the current time, since
+     *                    this methode gets called on script execution)
+     * @param triggerRate the TimedEventTriggerRate specifying if and how often a TimedEvent will trigger
+     * @return
+     */
     private LocalDateTime getNextExecDateTime(LocalDateTime oldExecTime, TimedEventTriggerRate triggerRate){
         LocalDateTime nextExecTime = null;
         switch (triggerRate){
@@ -100,6 +119,7 @@ public class MiaScheduledEventHandler implements IMiaShutdownable{
             events.add(event);
             scheduledEvents.put(shortenedTime, events);
         }
+        Mia.getLogger().logInfo("Scheduled event for: " + execTime);
     }
 
     @Override

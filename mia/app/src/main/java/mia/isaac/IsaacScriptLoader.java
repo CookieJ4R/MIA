@@ -21,11 +21,7 @@ public class IsaacScriptLoader {
 
     private final String scriptPath = "../scripts";
 
-    private final String META_SCRIPT_TYPE= "ISAAC-script-type=";
     private final String META_CALL_ID = "call-id:";
-    private final String META_EXEC_TIME = "exec-time:";
-
-    private String META_TIMED_IDENTIFIER = "TIMED";
 
     /***
      * Loads all scripts and stores them in loadedScripts with their callIDs as keys
@@ -40,9 +36,6 @@ public class IsaacScriptLoader {
         for (File file : scripts) {
             try {
                 IsaacScript script = createScriptFromFile(file);
-                if (script instanceof IsaacTimedScript) {
-                    Mia.getScheduledEventHandler().scheduleTimedEvent(MiaTimedEvent.createScriptEvent(TimedEventTriggerRate.ONCE, script.getScriptCallID()), ((IsaacTimedScript) script).getExecutionTime());
-                }
                 loadedScripts.put(script.getScriptCallID(), script);
             } catch (IsaacScriptSyntaxException e) {
                 Mia.getLogger().logError("Script syntax error detected", false);
@@ -69,14 +62,7 @@ public class IsaacScriptLoader {
         } catch (IOException e){
             e.printStackTrace();
         }
-        IsaacScript script;
-        if(getMetaDataPart(metaData, META_SCRIPT_TYPE).equals(META_TIMED_IDENTIFIER)) {
-            LocalTime time = LocalTime.parse(getMetaDataPart(metaData, META_EXEC_TIME));
-            script = new IsaacTimedScript(LocalDateTime.of(LocalDate.now(), time));
-        }
-        else
-            script = new IsaacScript();
-
+        IsaacScript script = new IsaacScript();
         script.setScriptCallID(getMetaDataPart(metaData, META_CALL_ID));
         String[] lines = new String[tempLineList.size()];
         script.setScriptLines(tempLineList.toArray(lines));

@@ -45,6 +45,10 @@ public class Mia implements IMiaCommandBusNode{
 
         getCommandBus().emit("core", "testLog");
 
+        //getScheduledEventHandler().scheduleTimedEvent(MiaTimedScriptEvent.createScriptEvent("testscript", TimedEventTriggerRate.ONCE), LocalDateTime.now().plusMinutes(1).withNano(0).withSecond(0));
+        //MiaTimedScriptEvent mia = MiaTimedScriptEvent.createScriptEvent("testscript", TimedEventTriggerRate.MINUTELY);
+        //LocalDateTime now = LocalDateTime.now().plusMinutes(1).withSecond(0).withNano(0);
+        //getScheduledEventHandler().scheduleTimedEvent(mia, now);
     }
 
     /***

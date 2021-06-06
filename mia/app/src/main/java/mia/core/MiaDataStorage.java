@@ -1,18 +1,13 @@
 package mia.core;
 
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.dizitart.no2.*;
 import org.dizitart.no2.filters.Filters;
-import org.dizitart.no2.mapper.JacksonMapper;
-import org.dizitart.no2.objects.Id;
-import org.dizitart.no2.objects.Indices;
 import org.dizitart.no2.objects.ObjectRepository;
 import org.dizitart.no2.objects.filters.ObjectFilters;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /***
@@ -24,30 +19,104 @@ public final class MiaDataStorage implements IMiaShutdownable, Serializable {
     private final String tokenCollection = "tokens";
 
     public MiaDataStorage(){
-        JacksonMapper nitriteMapper = new JacksonMapper();
-        nitriteMapper.getObjectMapper().registerModule(new JavaTimeModule());
         db = Nitrite.builder()
                 .compressed()
-                .nitriteMapper(nitriteMapper)
+                .registerModule(new JavaTimeModule())
                 .filePath("../miaDatabase.db")
                 .openOrCreate();
     }
 
+    /***
+     * Store an event with its executing date in the database
+     * Will call storeScriptEvent() when the passed event is a script event
+     * @param event the event to be stored
+     */
     public void storeEvent(MiaTimedEvent event){
-        ObjectRepository<MiaTimedEvent> timedEventStorage = db.getRepository(MiaTimedEvent.class);
-        timedEventStorage.insert(event);
+        if(event instanceof MiaTimedScriptEvent){
+            storeScriptEvent((MiaTimedScriptEvent) event);
+        }else {
+            ObjectRepository<MiaTimedEvent> timedEventStorage = db.getRepository(MiaTimedEvent.class);
+            timedEventStorage.insert(event);
+        }
     }
 
+    /***
+     * Intern method that gets called when a MiaTimedScriptEvent is passed to storeEvent()
+     * @param event the event to be stored
+     */
+    private void storeScriptEvent(MiaTimedScriptEvent event){
+        ObjectRepository<MiaTimedScriptEvent> timedScriptEventStorage = db.getRepository(MiaTimedScriptEvent.class);
+        timedScriptEventStorage.insert(event);
+    }
+
+
+    /***
+     * Updates an event in the corresponding collection
+     * @param event the event to update
+     */
+    public void updateEvent(MiaTimedEvent event) {
+        if(event instanceof MiaTimedScriptEvent){
+            ObjectRepository<MiaTimedScriptEvent> scriptTimedEventStorage = db.getRepository(MiaTimedScriptEvent.class);
+            scriptTimedEventStorage.update(ObjectFilters.eq("_id", event.getEventDatabaseID()), (MiaTimedScriptEvent) event);
+        }else {
+            ObjectRepository<MiaTimedEvent> timedEventStorage = db.getRepository(MiaTimedEvent.class);
+            timedEventStorage.update(ObjectFilters.eq("_id", event.getEventDatabaseID()), event);
+        }
+    }
+
+    /***
+     * Checks if a event collection contains the passed event
+     * @param event the event to check for
+     * @return if a event collection contains the element
+     */
+    public boolean containsEvent(MiaTimedEvent event) {
+        boolean containsEvent = false;
+        if(event instanceof MiaTimedScriptEvent){
+            ObjectRepository<MiaTimedScriptEvent> scriptTimedEventStorage = db.getRepository(MiaTimedScriptEvent.class);
+            org.dizitart.no2.objects.Cursor<MiaTimedScriptEvent> scriptCursor = scriptTimedEventStorage.find(ObjectFilters.eq("_id", event.getEventDatabaseID()));
+            if(scriptCursor.totalCount() > 0) containsEvent = true;
+        }else {
+            ObjectRepository<MiaTimedEvent> timedEventStorage = db.getRepository(MiaTimedEvent.class);
+            org.dizitart.no2.objects.Cursor<MiaTimedEvent> cursor = timedEventStorage.find(ObjectFilters.eq("_id", event.getEventDatabaseID()));
+            if(cursor.totalCount() > 0) containsEvent = true;
+        }
+        return containsEvent;
+    }
+
+    /***
+     * Gets all events for a specific LocalDateTime from all timedEventCollections
+     * @param dateTime the LocalDateTime to look up
+     * @return a list of MiaTimedEvents for the passed dateTime
+     */
     public List<MiaTimedEvent> getEventsForDateTime(LocalDateTime dateTime){
+        List<MiaTimedEvent> allEventsForDateTime = new ArrayList<>();
         ObjectRepository<MiaTimedEvent> timedEventStorage = db.getRepository(MiaTimedEvent.class);
         org.dizitart.no2.objects.Cursor<MiaTimedEvent> cursor = timedEventStorage.find(ObjectFilters.eq("execDateTime", dateTime));
-        return cursor.toList();
+
+        ObjectRepository<MiaTimedScriptEvent> scriptTimedEventStorage = db.getRepository(MiaTimedScriptEvent.class);
+        org.dizitart.no2.objects.Cursor<MiaTimedScriptEvent> cursorScriptEvents = scriptTimedEventStorage.find(ObjectFilters.eq("execDateTime", dateTime));
+
+        allEventsForDateTime.addAll(cursor.toList());
+        allEventsForDateTime.addAll(cursorScriptEvents.toList());
+        return allEventsForDateTime;
     }
 
+    /***
+     * Gets all events from all timedEventCollections
+     * @return a list of all MiaTimedEvents stored in the database
+     */
     public List<MiaTimedEvent> getAllEvents(){
+        List<MiaTimedEvent> allEvents = new ArrayList<>();
+
         ObjectRepository<MiaTimedEvent> timedEventStorage = db.getRepository(MiaTimedEvent.class);
         org.dizitart.no2.objects.Cursor<MiaTimedEvent> cursor = timedEventStorage.find();
-        return cursor.toList();
+
+        ObjectRepository<MiaTimedScriptEvent> scriptTimedEventStorage = db.getRepository(MiaTimedScriptEvent.class);
+        org.dizitart.no2.objects.Cursor<MiaTimedScriptEvent> cursorScriptEvents = scriptTimedEventStorage.find();
+
+        allEvents.addAll(cursor.toList());
+        allEvents.addAll(cursorScriptEvents.toList());
+        return allEvents;
     }
 
     /***
