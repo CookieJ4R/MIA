@@ -3,8 +3,8 @@ package mia.isaac;
 import java.time.LocalDateTime;
 
 /***
- * A slighly more advanced version of IsaacScript.
- * A IsaacTimedScript can be scheduled to be executet at a specific time by registering it in the TimedExecutor.
+ * A slightly more advanced version of IsaacScript.
+ * A IsaacTimedScript can be scheduled to be executed at a specific time by registering it in the TimedExecutor.
  */
 public class IsaacTimedScript extends IsaacScript{
 
